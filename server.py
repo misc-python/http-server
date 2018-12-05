@@ -6,9 +6,11 @@ import json
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     """
     """
+
     def do_GET(self):
         """
         """
+
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
         # import pdb; pdb.set_trace()
@@ -20,6 +22,11 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             with open('welcome.html', 'r') as f:
                 msg = f.read()
             self.wfile.write(bytes(msg.encode()))
+            return
+
+        if parsed_path.path[:10] == '/cow%20msg':
+            self.send_response(405)
+            self.end_headers()
             return
 
         # import pdb; pdb.set_trace()
@@ -64,12 +71,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         """
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-        import pdb; pdb.set_trace()
-        if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
+        # import pdb; pdb.set_trace()
+        if (self.path[:10] == '/cow%20msg'):
             # do some format checking for path
 
             # assuming we get path = "/cow?msg=text text text text"
-            self.send_response(200)
+            self.send_response(201)
             self.end_headers()
             text_msg = parsed_path.query.split("=")[-1]
             cheese = cow.Moose()
@@ -78,9 +85,18 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(text_dic).encode())
             return
 
-        # print(type(json.dumps(tmp)))
-        # print(json.dumps(tmp))
-        self.send_response(400)
+        if (self.path[:8] == '/cow?msg'):
+            self.send_response(405)
+            self.end_headers()
+            return
+
+
+        if (self.path[:4] == '/cow') or (parsed_path.path == '/'):
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        self.send_response(404)
         self.end_headers()
 
 
