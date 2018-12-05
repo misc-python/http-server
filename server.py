@@ -23,6 +23,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             return
 
         # import pdb; pdb.set_trace()
+        # if user input 5000/cow but without any msg info, return bad
+        if (parsed_path.path[:4] == '/cow') and ('msg' not in parsed_path.query):
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b'Error: please fill in your message for your cow.')
+            return
+
         # if 'cow' in parsed_path.path:
         if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
             # do some format checking for path
@@ -49,14 +56,15 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
         """
         """
-        pass
+        self.send_response(200)
+        self.end_headers()
 
     def do_POST(self):
         """
         """
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-
+        import pdb; pdb.set_trace()
         if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
             # do some format checking for path
 
@@ -72,7 +80,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         # print(type(json.dumps(tmp)))
         # print(json.dumps(tmp))
-        self.send_response(404)
+        self.send_response(400)
         self.end_headers()
 
 
