@@ -5,23 +5,30 @@ import json
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     """
+    This is a customized server inherited from BaseHTTPRequest Handler class.
+    In thie class we re-defined get and post method so that user can ask for
+    cow image or json file with different input texts.
     """
 
     def do_GET(self):
         """
+        Here we redefine Get function and handle illegal requests.
         """
 
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-        # import pdb; pdb.set_trace()
+
         if parsed_path.path == '/':
-            # Query the DB here - Then format your response
+            # allow user to get from home directory
             self.send_response(200)
             self.end_headers()
-            # self.wfile.write(b'<html><body><h1>hello</h1><body></html>')
+
+            # to save space, we get the html txt file from reading.
             with open('welcome.html', 'r') as f:
                 msg = f.read()
-            self.wfile.write(bytes(msg.encode()))
+
+            #return bytes file
+            self.wfile.write(msg.encode())
             return
 
         if parsed_path.path[:10] == '/cow%20msg':
@@ -29,7 +36,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        # import pdb; pdb.set_trace()
         # if user input 5000/cow but without any msg info, return bad
         if (parsed_path.path[:4] == '/cow') and ('msg' not in parsed_path.query):
             self.send_response(400)
@@ -37,51 +43,40 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'Error: please fill in your message for your cow.')
             return
 
-        # if 'cow' in parsed_path.path:
-        if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
-            # do some format checking for path
 
-            # assuming we get path = "/cow?msg=text text text text"
+        if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
             self.send_response(200)
             self.end_headers()
             text_msg = parsed_path.query.split("=")[-1]
+
+            # making cow...
             cheese = cow.Moose()
             msg = cheese.milk(text_msg)
             self.wfile.write(msg.encode())
             return
 
-        if parsed_path.path == '/hello':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(b'<html><body><h1>hello world!</h1></body></html>')
-            return
-
+        # for get requesting any other path, return not found.
         self.send_response(404)
         self.end_headers()
 
-    def do_HEAD(self):
-        """
-        """
-        self.send_response(200)
-        self.end_headers()
 
     def do_POST(self):
         """
+        Here we redefine the post function and handle illegal requests.
         """
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-        # import pdb; pdb.set_trace()
-        if (self.path[:10] == '/cow%20msg'):
-            # do some format checking for path
 
-            # assuming we get path = "/cow?msg=text text text text"
+        # specify legal format
+        if (self.path[:10] == '/cow%20msg'):
             self.send_response(201)
             self.end_headers()
+
             text_msg = parsed_path.query.split("=")[-1]
             cheese = cow.Moose()
             msg = cheese.milk(text_msg)
             text_dic = { "content" : msg}
+
             self.wfile.write(json.dumps(text_dic).encode())
             return
 
@@ -102,15 +97,17 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
 def create_server():
     """
+    Here we initialize the server
     """
     return HTTPServer(
-        ('127.0.0.1', 5000),  # TODO: Make these ENV Vars
+        ('127.0.0.1', 5000),
         SimpleHTTPRequestHandler
     )
 
 
 def run_forever():
     """
+    Here is the main running function that invoke our server.
     """
     server = create_server()
 
