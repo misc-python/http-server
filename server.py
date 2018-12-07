@@ -90,7 +90,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             text_dic = { "content" : msg}
 
             self.wfile.write(json.dumps(text_dic).encode())
-            import pdb; pdb.set_trace()
             return
 
         if (self.path[:8] == '/cow?msg'):
