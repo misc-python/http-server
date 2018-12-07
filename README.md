@@ -3,8 +3,6 @@
 
 
 Group Members: Joyce Liao. Matthew Brown. Toby Huang
-
-
 Version: 1.0.0
 
 
