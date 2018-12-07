@@ -84,7 +84,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             msg = cheese.milk(text_msg)
             text_dic = { "content" : msg}
             self.wfile.write(json.dumps(text_dic).encode())
-            import pdb; pdb.set_trace()
             return
 
         if (self.path[:8] == '/cow?msg'):
