@@ -39,14 +39,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         # if 'cow' in parsed_path.path:
         if (parsed_path.path[:4] == '/cow') and ('msg' in parsed_path.query):
-            # do some format checking for path
 
             # assuming we get path = "/cow?msg=text text text text"
             self.send_response(200)
             self.end_headers()
             text_msg = parsed_path.query.split("=")[-1]
             cheese = cow.Moose()
-            msg = cheese.milk(text_msg)
+            msg = cheese.milk(text_msg.replace('%20', ' '))
             self.wfile.write(msg.encode())
             return
 
@@ -71,18 +70,21 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         """
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-        # import pdb; pdb.set_trace()
         if (self.path[:10] == '/cow%20msg'):
             # do some format checking for path
 
             # assuming we get path = "/cow?msg=text text text text"
             self.send_response(201)
             self.end_headers()
-            text_msg = parsed_path.query.split("=")[-1]
+            #THIS text_msg returns an empty string:
+            # text_msg = parsed_path.query.split("=")[-1]
+            #This is the modified text_msg:
+            text_msg = parsed_path.path.split('=')[-1].replace('%20', ' ')
             cheese = cow.Moose()
             msg = cheese.milk(text_msg)
             text_dic = { "content" : msg}
             self.wfile.write(json.dumps(text_dic).encode())
+            import pdb; pdb.set_trace()
             return
 
         if (self.path[:8] == '/cow?msg'):
